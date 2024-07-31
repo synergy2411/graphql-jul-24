@@ -6,13 +6,15 @@ import { v4 } from "uuid";
 // Scalar Types - Single Value
 // Complex Type -
 
-const users = [
+// u001 -> p003 | c001 | c004 | c003
+
+let users = [
   { id: "u001", name: "monica", age: 21 },
   { id: "u002", name: "ross", age: 24 },
   { id: "u003", name: "rachel", age: 22 },
 ];
 
-const posts = [
+let posts = [
   {
     id: "p001",
     title: "GraphQL 101",
@@ -43,7 +45,7 @@ const posts = [
   },
 ];
 
-const comments = [
+let comments = [
   { id: "c001", text: "great book", postId: "p001", creator: "u001" },
   { id: "c002", text: "nice book", postId: "p002", creator: "u003" },
   { id: "c003", text: "Love the author", postId: "p003", creator: "u002" },
@@ -54,6 +56,7 @@ const typeDefs = /* GraphQL */ `
   type Mutation {
     createUser(name: String!, age: Int!): User!
     createPost(data: CreatePostInput): Post!
+    deletePost(postId: ID!): Post!
     createComment(text: String!, postId: ID!, creatorId: ID!): Comment!
     deleteComment(commentId: ID!): Comment!
   }
@@ -119,6 +122,17 @@ const resolvers = {
       };
       posts.push(newPost);
       return newPost;
+    },
+    deletePost: (parent, args, context, info) => {
+      const position = posts.findIndex((post) => post.id === args.postId);
+      if (position === -1) {
+        throw new GraphQLError("Unable to delete post for id - " + postId);
+      }
+
+      comments = comments.filter((comment) => comment.postId !== args.postId);
+
+      const [deletedPost] = posts.splice(position, 1);
+      return deletedPost;
     },
     createComment: (parent, args, context, info) => {
       const postPosition = posts.findIndex((post) => post.id == args.postId);

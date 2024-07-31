@@ -55,6 +55,8 @@ let comments = [
 const typeDefs = /* GraphQL */ `
   type Mutation {
     createUser(name: String!, age: Int!): User!
+    deleteUser(userId: ID!): User!
+    updateUser(userId: ID!, data: UpdateUserInput): User!
     createPost(data: CreatePostInput): Post!
     deletePost(postId: ID!): Post!
     createComment(text: String!, postId: ID!, creatorId: ID!): Comment!
@@ -92,6 +94,11 @@ const typeDefs = /* GraphQL */ `
     body: String!
     authorId: ID!
   }
+
+  input UpdateUserInput {
+    name: String
+    age: Int
+  }
 `;
 
 const resolvers = {
@@ -105,6 +112,41 @@ const resolvers = {
       };
       users.push(newUser);
       return newUser;
+    },
+    deleteUser: (parent, args, context, info) => {
+      const position = users.findIndex((user) => user.id === args.userId);
+      if (position === -1) {
+        throw new GraphQLError("Unable to find user for id - " + args.userId);
+      }
+      posts = posts.filter((post) => {
+        const isMatched = post.author === args.userId;
+        if (isMatched) {
+          comments = comments.filter((comment) => comment.postId !== post.id);
+        }
+        return !isMatched;
+      });
+      comments = comments.filter((comment) => comment.creator !== args.userId);
+
+      const [deletedUser] = users.splice(position, 1);
+      return deletedUser;
+    },
+    updateUser: (parent, args, context, info) => {
+      const { name, age } = args.data;
+
+      // user exists
+      const position = users.findIndex((user) => user.id === args.userId);
+      if (position === -1) {
+        throw new GraphQLError("Unable to find user for id -" + args.userId);
+      }
+
+      // name
+      if (typeof name === "string") {
+        users[position].name = name;
+      }
+      if (typeof age === "number") {
+        users[position].age = age;
+      }
+      return users[position];
     },
     createPost: (parent, args, context, info) => {
       const { title, body, authorId } = args.data;

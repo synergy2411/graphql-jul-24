@@ -11,19 +11,33 @@ const users = [
 ];
 
 const posts = [
-  { id: "p001", title: "GrpahQL 101", body: "Awesome book", published: true },
-  { id: "p002", title: "Spring in Java", body: "Like it", published: false },
+  {
+    id: "p001",
+    title: "GraphQL 101",
+    body: "Awesome book",
+    published: true,
+    author: "u003",
+  },
+  {
+    id: "p002",
+    title: "Spring in Java",
+    body: "Like it",
+    published: false,
+    author: "u002",
+  },
   {
     id: "p003",
     title: "Advanced React",
     body: "Love it.❤️❤️",
     published: true,
+    author: "u001",
   },
   {
     id: "p004",
     title: "NodeJS for Beginner",
     body: "Beginners book",
     published: false,
+    author: "u002",
   },
 ];
 
@@ -31,11 +45,18 @@ const typeDefs = /* GraphQL */ `
   type Query {
     hello: String!
     users(query: String): [User!]!
+    posts(query: String): [Post!]!
   }
   type User {
     id: ID!
     name: String!
     age: Int!
+  }
+  type Post {
+    id: ID!
+    title: String!
+    body: String!
+    published: Boolean!
   }
 `;
 
@@ -49,6 +70,16 @@ const resolvers = {
         );
       }
       return users;
+    },
+    posts: (parent, args, context, info) => {
+      if (args.query) {
+        return posts.filter(
+          (post) =>
+            post.title.toLowerCase().includes(args.query.toLowerCase()) ||
+            post.body.toLowerCase().includes(args.query.toLowerCase())
+        );
+      }
+      return posts;
     },
   },
 };

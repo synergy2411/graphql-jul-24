@@ -1,3 +1,9 @@
+# Break Time
+
+- Tea Break : 12:00 (15 mins)
+- Lunch Break : 01:30 (45 mins)
+- Tea Break : 04:00 (15 mins)
+
 # NodeJS Installer
 
 - Node Runtime Environment - NRE
@@ -30,6 +36,8 @@ name
 
 ---
 
+# Creating GraphQL Server - Steps
+
 - Create NodeJS Project
 - Generate package.json file
   > npm init -y
@@ -41,3 +49,4 @@ name
   - "type" : "module"
   - "dev:start" : "nodemon ./src/server.js"
 - Configure Yoga Server
+  > npm run dev:start

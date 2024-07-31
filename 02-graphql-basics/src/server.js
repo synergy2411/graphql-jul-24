@@ -55,6 +55,7 @@ const typeDefs = /* GraphQL */ `
     createUser(name: String!, age: Int!): User!
     createPost(data: CreatePostInput): Post!
     createComment(text: String!, postId: ID!, creatorId: ID!): Comment!
+    deleteComment(commentId: ID!): Comment!
   }
   type Query {
     hello: String!
@@ -140,6 +141,18 @@ const resolvers = {
       comments.push(newComment);
 
       return newComment;
+    },
+    deleteComment: (parent, args, context, info) => {
+      const position = comments.findIndex(
+        (comment) => comment.id === args.commentId
+      );
+      if (position === -1) {
+        throw new GraphQLError(
+          "Unable to find comment for Id - " + args.commentId
+        );
+      }
+      const [deletedComment] = comments.splice(position, 1);
+      return deletedComment;
     },
   },
   Query: {

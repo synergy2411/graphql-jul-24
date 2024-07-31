@@ -41,11 +41,19 @@ const posts = [
   },
 ];
 
+const comments = [
+  { id: "c001", text: "great book", postId: "p001" },
+  { id: "c002", text: "nice book", postId: "p002" },
+  { id: "c003", text: "Love the author", postId: "p003" },
+  { id: "c004", text: "Not bad", postId: "p002" },
+];
+
 const typeDefs = /* GraphQL */ `
   type Query {
     hello: String!
     users(query: String): [User!]!
     posts(query: String): [Post!]!
+    comments: [Comment!]!
   }
   type User {
     id: ID!
@@ -59,6 +67,12 @@ const typeDefs = /* GraphQL */ `
     body: String!
     published: Boolean!
     author: User!
+    comments: [Comment!]!
+  }
+  type Comment {
+    id: ID!
+    text: String!
+    post: Post!
   }
 `;
 
@@ -83,10 +97,24 @@ const resolvers = {
       }
       return posts; // [1,2,3,4]
     },
+    comments: () => comments,
   },
   Post: {
     author: (parent, args, context, info) => {
       return users.find((user) => user.id === parent.author);
+    },
+    comments: (parent, args, context, info) => {
+      return comments.filter((comment) => comment.postId === parent.id);
+    },
+  },
+  User: {
+    posts: (parent, args, context, info) => {
+      return posts.filter((post) => post.author === parent.id);
+    },
+  },
+  Comment: {
+    post: (parent, args, context, info) => {
+      return posts.find((post) => post.id === parent.postId);
     },
   },
 };

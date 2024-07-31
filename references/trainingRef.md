@@ -50,3 +50,9 @@ name
   - "dev:start" : "nodemon ./src/server.js"
 - Configure Yoga Server
   > npm run dev:start
+
+# GraphQL Built-in types -
+
+- Query
+- Mutation
+- Subscription

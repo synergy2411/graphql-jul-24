@@ -51,12 +51,14 @@ const typeDefs = /* GraphQL */ `
     id: ID!
     name: String!
     age: Int!
+    posts: [Post!]!
   }
   type Post {
     id: ID!
     title: String!
     body: String!
     published: Boolean!
+    author: User!
   }
 `;
 
@@ -79,7 +81,12 @@ const resolvers = {
             post.body.toLowerCase().includes(args.query.toLowerCase())
         );
       }
-      return posts;
+      return posts; // [1,2,3,4]
+    },
+  },
+  Post: {
+    author: (parent, args, context, info) => {
+      return users.find((user) => user.id === parent.author);
     },
   },
 };

@@ -54,6 +54,7 @@ const typeDefs = /* GraphQL */ `
   type Mutation {
     createUser(name: String!, age: Int!): User!
     createPost(data: CreatePostInput): Post!
+    createComment(text: String!, postId: ID!, creatorId: ID!): Comment!
   }
   type Query {
     hello: String!
@@ -103,8 +104,8 @@ const resolvers = {
     },
     createPost: (parent, args, context, info) => {
       const { title, body, authorId } = args.data;
-      const position = users.findIndex((user) => user.id === authorId);
-      if (position === -1) {
+      const isFoundUser = users.some((user) => user.id === authorId);
+      if (!isFoundUser) {
         throw new GraphQLError("Unable to find author for id -" + authorId);
       }
 
@@ -113,9 +114,32 @@ const resolvers = {
         title,
         body,
         published: false,
+        author: authorId,
       };
       posts.push(newPost);
       return newPost;
+    },
+    createComment: (parent, args, context, info) => {
+      const postPosition = posts.findIndex((post) => post.id == args.postId);
+      if (postPosition === -1) {
+        throw new GraphQLError("Unable to find post ID - " + args.postId);
+      }
+
+      const userPosition = users.findIndex((user) => user.id == args.creatorId);
+      if (userPosition === -1) {
+        throw new GraphQLError("Unable to find creator ID - " + args.creatorId);
+      }
+
+      let newComment = {
+        id: v4(),
+        text: args.text,
+        postId: args.postId,
+        creator: args.creatorId,
+      };
+
+      comments.push(newComment);
+
+      return newComment;
     },
   },
   Query: {

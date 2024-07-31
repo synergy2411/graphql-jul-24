@@ -1,5 +1,7 @@
 import { createServer } from "node:http";
 import { createYoga, createSchema } from "graphql-yoga";
+import { GraphQLError } from "graphql";
+import { v4 } from "uuid";
 
 // Scalar Types - Single Value
 // Complex Type -
@@ -42,13 +44,17 @@ const posts = [
 ];
 
 const comments = [
-  { id: "c001", text: "great book", postId: "p001" },
-  { id: "c002", text: "nice book", postId: "p002" },
-  { id: "c003", text: "Love the author", postId: "p003" },
-  { id: "c004", text: "Not bad", postId: "p002" },
+  { id: "c001", text: "great book", postId: "p001", creator: "u001" },
+  { id: "c002", text: "nice book", postId: "p002", creator: "u003" },
+  { id: "c003", text: "Love the author", postId: "p003", creator: "u002" },
+  { id: "c004", text: "Not bad", postId: "p002", creator: "u001" },
 ];
 
 const typeDefs = /* GraphQL */ `
+  type Mutation {
+    createUser(name: String!, age: Int!): User!
+    createPost(data: CreatePostInput): Post!
+  }
   type Query {
     hello: String!
     users(query: String): [User!]!
@@ -60,6 +66,7 @@ const typeDefs = /* GraphQL */ `
     name: String!
     age: Int!
     posts: [Post!]!
+    comments: [Comment!]!
   }
   type Post {
     id: ID!
@@ -73,10 +80,44 @@ const typeDefs = /* GraphQL */ `
     id: ID!
     text: String!
     post: Post!
+    creator: User!
+  }
+  input CreatePostInput {
+    title: String!
+    body: String!
+    authorId: ID!
   }
 `;
 
 const resolvers = {
+  Mutation: {
+    createUser: (parent, args, context, info) => {
+      const { name, age } = args;
+      let newUser = {
+        id: v4(),
+        name,
+        age,
+      };
+      users.push(newUser);
+      return newUser;
+    },
+    createPost: (parent, args, context, info) => {
+      const { title, body, authorId } = args.data;
+      const position = users.findIndex((user) => user.id === authorId);
+      if (position === -1) {
+        throw new GraphQLError("Unable to find author for id -" + authorId);
+      }
+
+      let newPost = {
+        id: v4(),
+        title,
+        body,
+        published: false,
+      };
+      posts.push(newPost);
+      return newPost;
+    },
+  },
   Query: {
     hello: () => "World!",
     users: (parent, args, context, info) => {
@@ -97,7 +138,7 @@ const resolvers = {
       }
       return posts; // [1,2,3,4]
     },
-    comments: () => comments,
+    comments: (parent, args, context, info) => comments,
   },
   Post: {
     author: (parent, args, context, info) => {
@@ -111,10 +152,16 @@ const resolvers = {
     posts: (parent, args, context, info) => {
       return posts.filter((post) => post.author === parent.id);
     },
+    comments: (parent, args, context, info) => {
+      return comments.filter((comment) => comment.creator === parent.id);
+    },
   },
   Comment: {
     post: (parent, args, context, info) => {
       return posts.find((post) => post.id === parent.postId);
+    },
+    creator: (parent, args, context, info) => {
+      return users.find((user) => user.id === parent.creator);
     },
   },
 };

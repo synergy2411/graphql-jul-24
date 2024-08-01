@@ -51,8 +51,26 @@ name
 - Configure Yoga Server
   > npm run dev:start
 
+# GraphQL Scalar Type - Store single value
+
+- ID
+- Int
+- String
+- Float
+- Boolean
+
 # GraphQL Built-in types -
 
-- Query
-- Mutation
-- Subscription
+- Query : fetching
+- Mutation : Create, Update, Delete
+- Subscription : Realtime updates
+
+---
+
+# MongoDB : Mongo Atlas (Cloud)
+
+# Mongo Compass - Mongo GUI Client
+
+# Prisma ORM
+
+# Authenticate - JWT Token

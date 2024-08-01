@@ -78,7 +78,7 @@ const Mutation = {
     const [deletedPost] = db.posts.splice(position, 1);
     return deletedPost;
   },
-  createComment: (parent, args, { db }, info) => {
+  createComment: (parent, args, { db, pubsub }, info) => {
     const postPosition = db.posts.findIndex((post) => post.id == args.postId);
     if (postPosition === -1) {
       throw new GraphQLError("Unable to find post ID - " + args.postId);
@@ -98,6 +98,7 @@ const Mutation = {
       creator: args.creatorId,
     };
 
+    pubsub.publish("comment-channel", newComment);
     db.comments.push(newComment);
 
     return newComment;

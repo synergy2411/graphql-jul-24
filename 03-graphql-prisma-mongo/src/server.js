@@ -3,14 +3,18 @@ import { PrismaClient } from "@prisma/client";
 import { createSchema, createYoga } from "graphql-yoga";
 import { GraphQLError } from "graphql";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-const { hashSync } = bcrypt;
+const { hashSync, compareSync } = bcrypt;
+const { sign } = jwt;
+const SECRET_KEY = "MySuperSecretKey";
 
 const prisma = new PrismaClient();
 
 const typeDefs = /* GraphQL */ `
   type Mutation {
     signUp(data: SignUpInput): SignUpPayload!
+    signIn(data: SignInInput): SignInPayload!
   }
 
   type Query {
@@ -25,6 +29,10 @@ const typeDefs = /* GraphQL */ `
     id: ID!
   }
 
+  type SignInPayload {
+    token: String!
+  }
+
   input SignUpInput {
     name: String!
     age: Int!
@@ -33,6 +41,10 @@ const typeDefs = /* GraphQL */ `
     role: Role
   }
 
+  input SignInInput {
+    email: String!
+    password: String!
+  }
   enum Role {
     ANALYST
     MANAGER
@@ -60,6 +72,31 @@ const resolvers = {
       } catch (err) {
         console.log(err);
         throw new GraphQLError("Unable to create new User");
+      }
+    },
+    signIn: async (parent, args, context, info) => {
+      const { email, password } = args.data;
+
+      try {
+        const foundUser = await prisma.user.findUnique({ where: { email } });
+
+        if (!foundUser) {
+          throw new GraphQLError("Invalid email");
+        }
+
+        const isMatched = compareSync(password, foundUser.password);
+
+        if (!isMatched) {
+          throw new GraphQLError("Invalid password");
+        }
+
+        const token = sign(
+          { id: foundUser.id, role: foundUser.role },
+          SECRET_KEY
+        );
+        return { token };
+      } catch (err) {
+        throw new GraphQLError("Unable to login");
       }
     },
   },

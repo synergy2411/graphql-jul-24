@@ -48,7 +48,7 @@ const Mutation = {
     }
     return db.users[position];
   },
-  createPost: (parent, args, { db }, info) => {
+  createPost: (parent, args, { db, pubsub }, info) => {
     const { title, body, authorId } = args.data;
     const isFoundUser = db.users.some((user) => user.id === authorId);
     if (!isFoundUser) {
@@ -63,9 +63,10 @@ const Mutation = {
       author: authorId,
     };
     db.posts.push(newPost);
+    pubsub.publish("post-channel", { mutation: "CREATED", post: newPost });
     return newPost;
   },
-  deletePost: (parent, args, { db }, info) => {
+  deletePost: (parent, args, { db, pubsub }, info) => {
     const position = db.posts.findIndex((post) => post.id === args.postId);
     if (position === -1) {
       throw new GraphQLError("Unable to delete post for id - " + postId);
@@ -76,6 +77,7 @@ const Mutation = {
     );
 
     const [deletedPost] = db.posts.splice(position, 1);
+    pubsub.publish("post-channel", { mutation: "DELETED", post: deletedPost });
     return deletedPost;
   },
   createComment: (parent, args, { db, pubsub }, info) => {

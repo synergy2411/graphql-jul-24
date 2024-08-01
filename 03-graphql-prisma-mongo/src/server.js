@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const { hashSync, compareSync } = bcrypt;
-const { sign } = jwt;
+const { sign, verify } = jwt;
 const SECRET_KEY = "MySuperSecretKey";
 
 const prisma = new PrismaClient();
@@ -15,10 +15,18 @@ const typeDefs = /* GraphQL */ `
   type Mutation {
     signUp(data: SignUpInput): SignUpPayload!
     signIn(data: SignInInput): SignInPayload!
+    createPost(data: CreatePostInput): Post!
   }
 
   type Query {
     hello: String!
+    posts: [Post!]!
+  }
+
+  type Post {
+    title: String!
+    body: String!
+    published: Boolean!
   }
 
   type SignUpPayload {
@@ -44,6 +52,12 @@ const typeDefs = /* GraphQL */ `
   input SignInInput {
     email: String!
     password: String!
+  }
+
+  input CreatePostInput {
+    title: String!
+    body: String!
+    published: Boolean
   }
   enum Role {
     ANALYST
@@ -79,13 +93,11 @@ const resolvers = {
 
       try {
         const foundUser = await prisma.user.findUnique({ where: { email } });
-
         if (!foundUser) {
           throw new GraphQLError("Invalid email");
         }
 
         const isMatched = compareSync(password, foundUser.password);
-
         if (!isMatched) {
           throw new GraphQLError("Invalid password");
         }
@@ -96,12 +108,40 @@ const resolvers = {
         );
         return { token };
       } catch (err) {
-        throw new GraphQLError("Unable to login");
+        throw new GraphQLError(err);
+      }
+    },
+    createPost: async (parent, args, { token }, info) => {
+      if (!token) {
+        throw new GraphQLError("Token required");
+      }
+      try {
+        let { title, body, published } = args.data;
+        published = published || false;
+
+        const { id } = verify(token, SECRET_KEY);
+
+        const createdPost = await prisma.post.create({
+          data: {
+            title,
+            body,
+            published,
+            authorId: id,
+          },
+        });
+        return createdPost;
+      } catch (err) {
+        console.log(err);
+        throw new GraphQLError("Unable to create post");
       }
     },
   },
   Query: {
     hello: () => "World!",
+    posts: async () => {
+      const allPosts = await prisma.post.findMany();
+      return allPosts;
+    },
   },
 };
 
@@ -113,8 +153,16 @@ async function main() {
 
   const yoga = createYoga({
     schema,
-    context: {
-      prisma,
+    context: ({ request }) => {
+      const authHeader = request.headers.get("authorization");
+      let token = null;
+      if (authHeader) {
+        token = authHeader.split(" ")[1];
+      }
+      return {
+        prisma,
+        token,
+      };
     },
   });
 

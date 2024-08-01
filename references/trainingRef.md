@@ -94,3 +94,13 @@ pass - DF7TiDcWkQOn1nss
 - npx prisma db push
 
 - npm install @prisma/client
+
+# Client-side Project using Vite
+
+- npm create vite@latest
+- project-name : frontend-javascript
+- Vanilla
+- JavaScript
+- cd frontend-javascript
+- npm install
+- npm run dev

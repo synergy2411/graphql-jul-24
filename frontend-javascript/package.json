@@ -1,0 +1,19 @@
+{
+  "name": "frontend-javascript",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.3.4"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.11.2",
+    "graphql": "^16.9.0",
+    "react": "^18.3.1"
+  }
+}

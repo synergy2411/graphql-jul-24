@@ -104,3 +104,5 @@ pass - DF7TiDcWkQOn1nss
 - cd frontend-javascript
 - npm install
 - npm run dev
+
+- npm install @apollo/client graphql react

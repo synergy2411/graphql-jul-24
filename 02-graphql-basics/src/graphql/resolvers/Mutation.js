@@ -98,12 +98,15 @@ const Mutation = {
       creator: args.creatorId,
     };
 
-    pubsub.publish("comment-channel", newComment);
+    pubsub.publish("comment-channel", {
+      mutation: "CREATED",
+      comment: newComment,
+    });
     db.comments.push(newComment);
 
     return newComment;
   },
-  deleteComment: (parent, args, { db }, info) => {
+  deleteComment: (parent, args, { db, pubsub }, info) => {
     const position = db.comments.findIndex(
       (comment) => comment.id === args.commentId
     );
@@ -113,6 +116,12 @@ const Mutation = {
       );
     }
     const [deletedComment] = db.comments.splice(position, 1);
+
+    pubsub.publish("comment-channel", {
+      mutation: "DELETED",
+      comment: deletedComment,
+    });
+
     return deletedComment;
   },
 };

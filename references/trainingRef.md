@@ -74,3 +74,23 @@ name
 # Prisma ORM
 
 # Authenticate - JWT Token
+
+# Mongo Atlas ( Don't use @ sign in username / password)
+
+SRV - mongodb+srv://synergy101:DF7TiDcWkQOn1nss@cluster0.hs6aj9e.mongodb.net/
+username - synergy101
+pass - DF7TiDcWkQOn1nss
+
+---
+
+- Mongoose ORM for MongDB
+- Prisma - prisma.io
+
+# Steps for Prisma & Mongo integration
+
+- npm init -y
+- npm install prisma -D
+- npx prisma init
+- npx prisma db push
+
+- npm install @prisma/client

@@ -1,8 +1,11 @@
+import AuthForm from "../../Components/AuthForm";
+
 function LoginPage() {
   return (
-    <>
-      <h1>Login Form coming soon...</h1>
-    </>
+    <div className="text-center">
+      <h1>Login Form</h1>
+      <AuthForm />
+    </div>
   );
 }
 

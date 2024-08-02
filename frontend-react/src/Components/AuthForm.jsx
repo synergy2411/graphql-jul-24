@@ -1,13 +1,26 @@
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation } from "@apollo/client";
+
+import USER_LOGIN from "../apollo/user-login";
 
 function AuthForm() {
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
+  const navigate = useNavigate();
 
-  const submitHandler = (e) => {
+  const [onUserLogin] = useMutation(USER_LOGIN);
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    console.log("Email : ", emailInputRef.current.value);
-    console.log("Password : ", passwordInputRef.current.value);
+    const { data } = await onUserLogin({
+      variables: {
+        email: emailInputRef.current.value,
+        password: passwordInputRef.current.value,
+      },
+    });
+    localStorage.setItem("token", data.signIn.token);
+    navigate("/posts");
   };
 
   return (

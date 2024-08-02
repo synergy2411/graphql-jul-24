@@ -1,6 +1,13 @@
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
 function MainNavigation() {
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    setToken(localStorage.getItem("token"));
+  });
+
   return (
     <header>
       <nav>
@@ -15,11 +22,13 @@ function MainNavigation() {
               Posts
             </NavLink>
           </li>
-          <li className="nav-item">
-            <NavLink className="nav-link" to="/login">
-              Login
-            </NavLink>
-          </li>
+          {!token && (
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/login">
+                Login
+              </NavLink>
+            </li>
+          )}
         </ul>
       </nav>
     </header>

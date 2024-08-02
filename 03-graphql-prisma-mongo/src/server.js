@@ -24,6 +24,7 @@ const typeDefs = /* GraphQL */ `
   }
 
   type Post {
+    id: ID!
     title: String!
     body: String!
     published: Boolean!

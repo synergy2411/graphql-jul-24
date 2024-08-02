@@ -106,3 +106,17 @@ pass - DF7TiDcWkQOn1nss
 - npm run dev
 
 - npm install @apollo/client graphql react
+
+---
+
+# Automated Testing - jest
+
+- npm install @apollo/client graphql react
+- npm install jest jest-environment-jsdom cross-fetch -D
+- npm init jest
+- "test" : "jest --watchAll" in package.json file
+- npm run test
+
+# React App
+
+# Boilerplate project for GraphQL

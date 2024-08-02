@@ -32,15 +32,19 @@ window.onload = function () {
   btnLogin.addEventListener("click", async function (event) {
     event.preventDefault();
 
-    const { data } = await client.mutate({
-      mutation: USER_LOGIN,
-      variables: {
-        email: txtEmail.value,
-        password: txtPassword.value,
-      },
-    });
+    try {
+      const { data } = await client.mutate({
+        mutation: USER_LOGIN,
+        variables: {
+          email: txtEmail.value,
+          password: txtPassword.value,
+        },
+      });
 
-    console.log(data);
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    }
   });
 
   const fetchPosts = async () => {

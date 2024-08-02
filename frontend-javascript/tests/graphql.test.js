@@ -71,4 +71,29 @@ describe("GraphQL Query", () => {
 
     expect(data.signIn.token).toBeUndefined();
   });
+
+  test("should create new user in GraphQL Server", async () => {
+    const USER_REGISTRATION = gql`
+      mutation SignUp {
+        signUp(
+          data: {
+            name: "rachel"
+            age: 22
+            email: "rachel@test"
+            password: "rachel123"
+          }
+        ) {
+          name
+          email
+          age
+          role
+          id
+        }
+      }
+    `;
+
+    const { data } = await client.mutate({ mutation: USER_REGISTRATION });
+
+    expect(data.signUp.id).not.toBeUndefined();
+  });
 });

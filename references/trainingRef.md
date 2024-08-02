@@ -119,4 +119,10 @@ pass - DF7TiDcWkQOn1nss
 
 # React App
 
+- npx create-react-app frontend-react
+- cd frontend-react
+- npm install react-router-dom bootstrap
+- npm install @apollo/client graphql
+- npm run start
+
 # Boilerplate project for GraphQL
